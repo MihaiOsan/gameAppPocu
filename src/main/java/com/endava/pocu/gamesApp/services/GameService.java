@@ -35,7 +35,7 @@ public class GameService {
         if (game.isPresent())
             return game.get();
         else
-            throw new RuntimeException("Could not find a game with id: " + id);
+            throw new RuntimeException("Game with id "+id+" does not exist");
     }
 
     public Game updateGame(Long id, Game game){

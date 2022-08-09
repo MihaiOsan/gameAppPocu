@@ -1,6 +1,7 @@
 package com.endava.pocu.gamesApp.services;
 
-import com.endava.pocu.gamesApp.models.Game;
+import com.endava.pocu.gamesApp.exceptions.InvalidRequestException;
+import com.endava.pocu.gamesApp.exceptions.RecordNotFoundException;
 import com.endava.pocu.gamesApp.models.Tag;
 import com.endava.pocu.gamesApp.repositories.TagRepository;
 import org.springframework.beans.BeanUtils;
@@ -32,16 +33,26 @@ public class TagService {
         if (tag.isPresent())
             return tag.get();
         else
-            throw new RuntimeException("Could not find a tag with id: " + id);
+            throw new RecordNotFoundException("Tag with id "+id+" does not exist");
     }
 
     public Tag updateTag(Long id,final Tag tag){
-        Tag existingTag = tagRepository.getReferenceById(id);
+        if (id == null || tag == null)
+            throw new InvalidRequestException("Tag and id must not be null");
+        Optional<Tag> optionalExistingTag = tagRepository.findById(id);
+        if (optionalExistingTag.isEmpty())
+            throw new RecordNotFoundException("Tag with id "+id+" does not exist");
+        Tag existingTag = optionalExistingTag.get();
         BeanUtils.copyProperties(tag, existingTag, "tagId");
         return tagRepository.saveAndFlush(existingTag);
     }
 
     public void deleteTag(final Long id){
+        if (id == null)
+            throw new InvalidRequestException("Id must not be null");
+        Optional<Tag> optionalExistingTag = tagRepository.findById(id);
+        if (optionalExistingTag.isEmpty())
+            throw new RecordNotFoundException("Tag with id "+id+" does not exist");
         tagRepository.deleteById(id);
     }
 }

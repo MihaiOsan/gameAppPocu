@@ -21,7 +21,9 @@ public class GameController {
 
     // as a user I want to be able to get a game by a specified id
     @GetMapping(value = "{id}")
-    public Game getGameById(@PathVariable Long id){return gameService.findGameById(id);}
+    public Game getGameById(@PathVariable Long id){
+        return gameService.findGameById(id);
+    }
 
     // as a user I want to be able to select all games containing a specific tag
     @GetMapping(path = "/findByTag")
