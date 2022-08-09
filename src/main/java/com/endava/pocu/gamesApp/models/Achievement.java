@@ -1,6 +1,7 @@
 package com.endava.pocu.gamesApp.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 
@@ -14,7 +15,7 @@ public class Achievement {
 
     @ManyToOne
     @JoinColumn(name = "game_id", referencedColumnName = "game_id")
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Game game;
 
     @Column(name = "achievement_title")

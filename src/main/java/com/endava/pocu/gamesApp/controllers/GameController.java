@@ -26,7 +26,6 @@ public class GameController {
     // as a user I want to be able to select all games containing a specific tag
     @GetMapping(path = "/findByTag")
     public Optional<List<Game>> getGameByTagTitle(@RequestBody String tagTitle){
-        System.out.println(tagTitle);
         return gameService.findByTagTitle(tagTitle);
     }
 

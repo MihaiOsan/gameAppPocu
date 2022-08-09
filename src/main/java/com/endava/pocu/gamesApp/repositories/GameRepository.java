@@ -13,4 +13,5 @@ public interface GameRepository extends JpaRepository<Game, Long> {
 
     @Query("select g from games g join g.tags t  where t.tagTitle = :tagTitle")
     Optional<List<Game>> findGamesByTagTitle(String tagTitle);
+
 }
