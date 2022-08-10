@@ -19,6 +19,8 @@ public class TagService {
     private TagRepository tagRepository;
 
     public Tag saveTag(final Tag tag){
+        if (tag == null)
+            throw new InvalidRequestException("Tag must not be null");
         return tagRepository.saveAndFlush(tag);
     }
 

@@ -5,15 +5,12 @@ import com.endava.pocu.gamesApp.exceptions.RecordNotFoundException;
 import com.endava.pocu.gamesApp.models.Game;
 import com.endava.pocu.gamesApp.models.Tag;
 import com.endava.pocu.gamesApp.repositories.TagRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,27 +38,27 @@ class TagServiceTest {
         TAG.setGames(GAMES);
     }
 
-
-    @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    ObjectMapper mapper;
-
     @Mock
     TagRepository tagRepository;
 
     @InjectMocks
     TagService tagService;
 
+
     @Test
-    void saveTag() {
+    void saveTagShouldThrowInvalidRequestExceptionIfTagIsNull() {
+
+        assertThatThrownBy(()-> tagService.saveTag(null))
+                .isInstanceOf(InvalidRequestException.class)
+                .hasMessage("Tag must not be null");
     }
 
     @Test
     void findAllTags() {
-    }
 
+        List<Tag> tags = tagService.findAllTags();
+        assertThat(tags.size()).isGreaterThanOrEqualTo(0);
+    }
     @Test
     void findTagByIdShouldThrowRecordNotFoundWhenTagIsNotInDb(){
         when(tagRepository.findById(TAG_ID)).thenReturn(Optional.empty());
@@ -72,10 +69,36 @@ class TagServiceTest {
     }
 
     @Test
-    void updateTag() {
+    void updateTagShouldThrowRecordNotFoundWhenTagIsNotInDb() {
+        when(tagRepository.findById(TAG_ID)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(()-> tagService.updateTag(TAG_ID, TAG))
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Tag with id "+TAG_ID+" does not exist");
     }
 
     @Test
-    void deleteTag() {
+    void updateTagShouldThrowInvalidRequestExceptionWhenTagOrIdIsNull() {
+
+        assertThatThrownBy(()-> tagService.updateTag(null ,null))
+                .isInstanceOf(InvalidRequestException.class)
+                .hasMessage("Tag and id must not be null");
+    }
+
+    @Test
+    void deleteTagShouldThrowRecordNotFoundWhenTagIsNotInDb() {
+        when(tagRepository.findById(TAG_ID)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(()-> tagService.findTagById(TAG_ID))
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Tag with id "+TAG_ID+" does not exist");
+    }
+
+    @Test
+    void deleteShouldThrowInvalidRequestExceptionWhenTagOrIdIsNull() {
+
+        assertThatThrownBy(()-> tagService.deleteTag(null))
+                .isInstanceOf(InvalidRequestException.class)
+                .hasMessage("Id must not be null");
     }
 }

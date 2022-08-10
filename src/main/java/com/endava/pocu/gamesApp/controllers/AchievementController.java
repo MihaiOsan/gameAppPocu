@@ -22,7 +22,7 @@ public class AchievementController {
     // as a user I want to be able to see all achievements for a specific game
     @GetMapping(path = "/findByGameTitle")
     public Optional<List<Achievement>> getAchievementByGameTitle(@RequestBody String gameTitle){
-        return achievementService.findByGameTitel(gameTitle);
+        return achievementService.findByGameTitle(gameTitle);
     }
 
     // as a user I want to be able to add new achievements

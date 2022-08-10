@@ -1,6 +1,5 @@
 package com.endava.pocu.gamesApp.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
@@ -25,7 +24,7 @@ public class Achievement {
     private String achievementDescription;
 
     @Column(name = "achievement_dificulty")
-    private String achievementDificulty;
+    private String achievementDifficulty;
 
     public Achievement() {
     }
@@ -62,11 +61,11 @@ public class Achievement {
         this.achievementDescription = achievementDescription;
     }
 
-    public String getAchievementDificulty() {
-        return achievementDificulty;
+    public String getAchievementDifficulty() {
+        return achievementDifficulty;
     }
 
-    public void setAchievementDificulty(String achievementDificulty) {
-        this.achievementDificulty = achievementDificulty;
+    public void setAchievementDifficulty(String achievementDificulty) {
+        this.achievementDifficulty = achievementDificulty;
     }
 }
