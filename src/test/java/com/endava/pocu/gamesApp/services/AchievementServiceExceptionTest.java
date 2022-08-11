@@ -20,7 +20,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class AchievementServiceTest {
+class AchievementServiceExceptionTest {
 
     @Mock
     AchievementRepository achievementRepository;

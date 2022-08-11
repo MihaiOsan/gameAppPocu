@@ -1,40 +1,34 @@
 package com.endava.pocu.gamesApp.services;
 
-import com.endava.pocu.gamesApp.exceptions.InvalidRequestException;
 import com.endava.pocu.gamesApp.exceptions.RecordNotFoundException;
 import com.endava.pocu.gamesApp.models.Achievement;
 import com.endava.pocu.gamesApp.models.Game;
 import com.endava.pocu.gamesApp.models.Tag;
 import com.endava.pocu.gamesApp.repositories.GameRepository;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-class GameServiceTest {
-
-    @Mock
+@SpringBootTest
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+public class GameServiceTest {
+    @Autowired
     GameRepository gameRepository;
 
-    @InjectMocks
+    @Autowired
     GameService gameService;
 
     private static final Long GAME_ID = 1000l;
     private static final String GAME_TITLE = "gmaeTitle";
     private static final String GAME_DESCRIPION = "gameDescription";
-    private static final List<Tag> TAGS = new ArrayList<>();
+    private static final List<Tag> TAGS = new ArrayList<Tag>();
     private static final String GAME_DEVELOPER = "gameDeveloper";
     private static final String GAME_AGE_RATING = "gameAgeRating";
     private static final float GAME_RATING = 10.0f;
@@ -55,77 +49,76 @@ class GameServiceTest {
     }
 
     @Test
-    void saveGame() {
+    @Order(1)
+    void saveGameShouldIncreaseNumberOfElementsInDB() {
+        int beforeSize = gameRepository.findAll().size();
 
-        assertThatThrownBy(()-> gameService.saveGame(null))
-                .isInstanceOf(InvalidRequestException.class)
-                .hasMessage("Game must not be null");
+        gameService.saveGame(GAME);
+
+        int afterSize = gameRepository.findAll().size();
+        assertThat(beforeSize).isEqualTo(afterSize-1);
     }
 
     @Test
-    void findAllGames() {
+    @Order(2)
+    void saveGameSuccess() {
 
-        List<Game> games = gameService.findAllGames();
-        assertThat(games.size()).isGreaterThanOrEqualTo(0);
+        gameService.saveGame(GAME);
+
+        Game game = gameRepository.findById(1l).get();
+        assertThat(game.getGameTitle()).isEqualTo(GAME.getGameTitle());
+        assertThat(game.getGameDescription()).isEqualTo(GAME.getGameDescription());
     }
 
     @Test
-    void findByTagTitleShouldThrowInvalidRequestExceptionIfTagTitleIsNull() {
+    @Order(3)
+    void updateGameShouldNotIncreaseNumberOfElementsInDB() {
+        gameService.saveGame(GAME);
+        int beforeSize = gameRepository.findAll().size();
+        Game newGame = new Game();
+        BeanUtils.copyProperties(newGame, GAME, "gameId");
 
-        assertThatThrownBy(()-> gameService.findByTagTitle(null))
-                .isInstanceOf(InvalidRequestException.class)
-                .hasMessage("Tag title must not be null");
+        gameService.updateGame(1l, newGame);
+
+        int afterSize = gameRepository.findAll().size();
+        assertThat(beforeSize).isEqualTo(afterSize);
     }
 
     @Test
-    void findGameByIdShouldThrowRecordNotFoundWhenGameIsNotInDb(){
-        when(gameRepository.findById(GAME_ID)).thenReturn(Optional.empty());
+    @Order(4)
+    void updateGameSuccess() {
+        gameService.saveGame(GAME);
+        Game newGame = new Game();
+        BeanUtils.copyProperties( GAME, newGame,"gameId");
+        newGame.setGameDescription("CHANGED_DESCRIPTION");
 
-        assertThatThrownBy(()-> gameService.findGameById(GAME_ID))
-                .isInstanceOf(RecordNotFoundException.class)
-                .hasMessage("Game with id "+GAME_ID+" does not exist");
+        gameService.updateGame(1l, newGame);
+
+        Game updatedGame = gameRepository.findById(1l).get();
+        assertThat(updatedGame.getGameDescription()).isEqualTo("CHANGED_DESCRIPTION");
+
     }
 
     @Test
-    void updateGameShouldThrowRecordNotFoundWhenGameIsNotInDb() {
-        when(gameRepository.findById(GAME_ID)).thenReturn(Optional.empty());
+    @Order(5)
+    void deleteGameShouldDecreaseNumberOfElementsInDB() {
+        gameService.saveGame(GAME);
+        int beforeSize = gameRepository.findAll().size();
 
-        assertThatThrownBy(()-> gameService.updateGame(GAME_ID,GAME))
-                .isInstanceOf(RecordNotFoundException.class)
-                .hasMessage("Game with id "+GAME_ID+" does not exist");
+        gameService.deleteGame(1l);
+
+        int afterSize = gameRepository.findAll().size();
+        assertThat(beforeSize-1).isEqualTo(afterSize);
     }
 
     @Test
-    void updateGameShouldThrowRecordNotFoundWhenAchievementIsNotInDb() {
-        when(gameRepository.findById(GAME_ID)).thenReturn(Optional.empty());
+    @Order(6)
+    void deleteGameSuccess() {
+        gameService.saveGame(GAME);
 
-        assertThatThrownBy(()-> gameService.updateGame(GAME_ID,GAME))
-                .isInstanceOf(RecordNotFoundException.class)
-                .hasMessage("Game with id "+GAME_ID+" does not exist");
-    }
+        gameService.deleteGame(2l);
 
-    @Test
-    void updateGameShouldThrowInvalidRequestExceptionWhenGameOrIdIsNull() {
-
-        assertThatThrownBy(()->gameService.updateGame(null ,null))
-                .isInstanceOf(InvalidRequestException.class)
-                .hasMessage("Game and id must not be null");
-    }
-
-    @Test
-    void deleteGameShouldThrowRecordNotFoundWhenAchievementIsNotInDb() {
-        when(gameRepository.findById(GAME_ID)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(()-> gameService.updateGame(GAME_ID,GAME))
-                .isInstanceOf(RecordNotFoundException.class)
-                .hasMessage("Game with id "+GAME_ID+" does not exist");
-    }
-
-    @Test
-    void deleteGameShouldThrowInvalidRequestExceptionWhenAchievementOrIdIsNull() {
-
-        assertThatThrownBy(()-> gameService.updateGame(null ,null))
-                .isInstanceOf(InvalidRequestException.class)
-                .hasMessage("Game and id must not be null");
+        assertThatThrownBy(()-> gameService.findGameById(1l))
+                .isInstanceOf(RecordNotFoundException.class);
     }
 }

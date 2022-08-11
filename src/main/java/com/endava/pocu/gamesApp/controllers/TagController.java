@@ -21,15 +21,11 @@ public class TagController {
 
     // as a user I want to be able to get a tag with a specific id
     @GetMapping(value = "{id}")
-    public Tag getTagById(@PathVariable Long id){
-        return tagService.findTagById(id);
-    }
+    public Tag getTagById(@PathVariable Long id){return tagService.findTagById(id);}
 
     // as a user I want to be able to create new tags
     @PostMapping
-    public Tag create(@RequestBody final Tag tag){
-        return tagService.saveTag(tag);
-    }
+    public Tag create(@RequestBody final Tag tag){return tagService.saveTag(tag);}
 
     // as a user I want to be able to update a tag with a specified id
     @RequestMapping(value = "{id}", method = RequestMethod.PUT)
